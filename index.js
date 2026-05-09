@@ -1,35 +1,42 @@
 const TelegramBot = require('node-telegram-bot-api');
-const OpenAI = require('openai');
 
 const bot = new TelegramBot(process.env.BOT_TOKEN, {
   polling: true,
 });
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
 bot.on('message', async (msg) => {
   const chatId = msg.chat.id;
   const text = msg.text;
 
   if (text === '/start') {
-    bot.sendMessage(chatId, 'AI botga xush kelibsiz 🤖');
+    bot.sendMessage(chatId, 'Gemini AI botga xush kelibsiz 🤖');
     return;
   }
 
   try {
-    const response = await openai.chat.completions.create({
-      model: 'gpt-3.5-turbo',
-      messages: [
-        {
-          role: 'user',
-          content: text,
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
-      ],
-    });
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [{ text }],
+            },
+          ],
+        }),
+      }
+    );
 
-    const reply = response.choices[0].message.content;
+    const data = await response.json();
+
+    const reply =
+      data.candidates[0].content.parts[0].text;
 
     bot.sendMessage(chatId, reply);
   } catch (error) {
