@@ -5,7 +5,7 @@ const token = process.env.BOT_TOKEN;
 const bot = new TelegramBot(token, { polling: true });
 
 bot.on('message', (msg) => {
-  bot.sendMessage(msg.chat.id, 'Salom Jonibek 😎 Bot ishladi!');
-});
+  const chatId = msg.chat.id;
 
-console.log("Bot ishga tushdi");
+  bot.sendMessage(chatId, 'Salom Jonibek 🚀');
+});
