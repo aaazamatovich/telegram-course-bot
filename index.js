@@ -17,7 +17,7 @@ bot.on('message', async (msg) => {
 
   try {
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
       {
         method: 'POST',
         headers: {
@@ -26,7 +26,7 @@ bot.on('message', async (msg) => {
         body: JSON.stringify({
           contents: [
             {
-              parts: [{ text }],
+              parts: [{ text: text }],
             },
           ],
         }),
@@ -35,12 +35,19 @@ bot.on('message', async (msg) => {
 
     const data = await response.json();
 
+    console.log(data);
+
     const reply =
       data.candidates[0].content.parts[0].text;
 
     bot.sendMessage(chatId, reply);
+
   } catch (error) {
     console.log(error);
-    bot.sendMessage(chatId, 'Xatolik chiqdi 😢');
+
+    bot.sendMessage(
+      chatId,
+      'Xatolik chiqdi 😢'
+    );
   }
 });
