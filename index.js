@@ -13,15 +13,18 @@ bot.on('message', async (msg) => {
 
   try {
     const model = genAI.getGenerativeModel({
-      model: 'gemini-2.0-flash',
+      model: "gemini-1.5-flash"
     });
 
     const result = await model.generateContent(text);
-    const response = result.response.text();
+
+    const response =
+      result.response.candidates[0].content.parts[0].text;
 
     bot.sendMessage(chatId, response);
+
   } catch (error) {
     console.log(error);
-    bot.sendMessage(chatId, 'Xatolik chiqdi 😢');
+    bot.sendMessage(chatId, "Xatolik chiqdi 😢");
   }
 });
