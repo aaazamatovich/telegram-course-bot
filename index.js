@@ -1,5 +1,5 @@
-const TelegramBot = require('node-telegram-bot-api');
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+const TelegramBot = require("node-telegram-bot-api");
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 const bot = new TelegramBot(process.env.BOT_TOKEN, {
   polling: true,
@@ -7,24 +7,25 @@ const bot = new TelegramBot(process.env.BOT_TOKEN, {
 
 const genAI = new GoogleGenerativeAI(process.env.OPENAI_API_KEY);
 
-bot.on('message', async (msg) => {
+async function run(prompt) {
+  const model = genAI.getGenerativeModel({
+    model: "gemini-1.5-flash",
+  });
+
+  const result = await model.generateContent(prompt);
+  const response = await result.response;
+  return response.text();
+}
+
+bot.on("message", async (msg) => {
   const chatId = msg.chat.id;
-  const text = msg.text;
 
   try {
-    const model = genAI.getGenerativeModel({
-      model: "gemini-1.5-flash"
-    });
+    const answer = await run(msg.text);
 
-    const result = await model.generateContent(text);
-
-    const response =
-      result.response.candidates[0].content.parts[0].text;
-
-    bot.sendMessage(chatId, response);
-
-  } catch (error) {
-    console.log(error);
-    bot.sendMessage(chatId, "Xatolik chiqdi 😢");
+    await bot.sendMessage(chatId, answer);
+  } catch (err) {
+    console.log(err);
+    await bot.sendMessage(chatId, "Xatolik chiqdi 😢");
   }
 });
