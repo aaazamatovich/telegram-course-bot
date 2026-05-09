@@ -1,22 +1,39 @@
 const TelegramBot = require('node-telegram-bot-api');
+const OpenAI = require('openai');
 
-const token = process.env.BOT_TOKEN;
+const bot = new TelegramBot(process.env.BOT_TOKEN, {
+  polling: true,
+});
 
-const bot = new TelegramBot(token, { polling: true });
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
-bot.on('message', (msg) => {
+bot.on('message', async (msg) => {
   const chatId = msg.chat.id;
   const text = msg.text;
 
   if (text === '/start') {
-    bot.sendMessage(chatId, 'Botga xush kelibsiz 🚀');
+    bot.sendMessage(chatId, 'AI botga xush kelibsiz 🤖');
+    return;
   }
 
-  else if (text === 'salom') {
-    bot.sendMessage(chatId, 'Va alaykum salom 😊');
-  }
+  try {
+    const response = await openai.chat.completions.create({
+      model: 'gpt-3.5-turbo',
+      messages: [
+        {
+          role: 'user',
+          content: text,
+        },
+      ],
+    });
 
-  else {
-    bot.sendMessage(chatId, 'Tushunmadim 😅');
+    const reply = response.choices[0].message.content;
+
+    bot.sendMessage(chatId, reply);
+  } catch (error) {
+    console.log(error);
+    bot.sendMessage(chatId, 'Xatolik chiqdi 😢');
   }
 });
